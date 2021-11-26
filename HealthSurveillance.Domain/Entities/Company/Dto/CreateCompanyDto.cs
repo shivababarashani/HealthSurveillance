@@ -17,7 +17,7 @@ namespace HealthSurveillance.Domain.Entities.Company.Dto
 
         public string FullName { get; set; }
 
-        public IFormFile Logo { get; set; }
+        public IFormFile ImageFile { get; set; }
 
         public string Desc { get; set; }
     }

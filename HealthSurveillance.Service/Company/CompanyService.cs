@@ -2,8 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using HealthSurveillance.Domain.Entities.Common.Contracts;
 using HealthSurveillance.Domain.Entities.Company.ViewModel;
-using HealthSurveillance.Domain.Entities.Company;
-using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthSurveillance.Domain.Entities.Company.Dto;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using HealthSurveillance.Service.Common;
+using Microsoft.AspNetCore.Hosting;
 
 namespace HealthSurveillance.Service.Company
 {
@@ -19,11 +22,12 @@ namespace HealthSurveillance.Service.Company
     {
         private readonly IRepository<Domain.Entities.Company.DataModels.Company> _repository;
         private readonly IMapper _mapper;
-
-        public CompanyService(IRepository<Domain.Entities.Company.DataModels.Company> repository, IMapper mapper)
+        private readonly IHostingEnvironment _enviroment;
+        public CompanyService(IRepository<Domain.Entities.Company.DataModels.Company> repository, IMapper mapper, IHostingEnvironment environment)
         {
             _repository = repository;
             _mapper = mapper;
+            _enviroment = environment;
         }
         public async Task<List<CompanyViewModel>> Get(CancellationToken cancellationToken)
         {
@@ -39,9 +43,13 @@ namespace HealthSurveillance.Service.Company
         }
         public async Task Create(CreateCompanyDto request, CancellationToken cancellationToken)
         {
+            FileManager fileManager = new FileManager(_enviroment);
+            await fileManager.InsertFiles(request.ImageFile, "Files/Images");
             var model = new Domain.Entities.Company.DataModels.Company();
             _mapper.Map(request, model);
             await _repository.AddAsync(model, cancellationToken);
         }
+
+       
     }
 }
